@@ -1,0 +1,14 @@
+---
+
+- fail:
+    msg: beats_beat must be specified and cannot be blank e.g. 'filebeat'
+  when: beats_beat is not defined or beats_beat == ''
+
+# When using beats_use_repository=false, and no custom repository, the version must be specified as this used to construct the URL
+- fail:
+    msg: beats_custom_package_url must be specified when beats_use_repository=false
+  when: beats_use_repository == false and (beats_custom_package_url is not defined or beats_custom_package_url == '')
+
+- fail:
+    msg: beats_conf must be specified
+  when: beats_conf is not defined

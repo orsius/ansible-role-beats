@@ -1,0 +1,22 @@
+---
+- name: Create Config Directory
+  file:
+    path: "{{ beats_conf_dir }}"
+    state: directory
+
+- name: Copy Configuration File
+  template:
+    src: beat.yml.j2
+    dest: "{{ beats_conf_dir }}/{{ beats_beat }}.yml"
+    mode: 0644
+    force: yes
+    owner: root
+    group: root
+  notify: restart beat
+
+- name: enable modules
+  #shell: "filebeat modules enable {{ item }}"
+  shell: "{{ beats_beat }} modules enable {{ item }}"
+  with_items: "{{ beat_enable_modules }}"
+  when: beat_enable_modules is not none
+  changed_when: False

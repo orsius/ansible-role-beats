@@ -1,0 +1,20 @@
+---
+
+beats_version_lock: false
+beats_use_repository: true
+beats_start_service: true
+beats_restart_on_change: true
+beats_conf_dir: "/etc/{{ beats_beat }}"
+
+es_major_version: "7.x"
+es_yum_repo: "https://artifacts.elastic.co/packages/{{ es_major_version }}/yum"
+es_yum_gpg: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+es_apt_repo: "deb https://artifacts.elastic.co/packages/{{ es_major_version }}/apt stable main"
+es_apt_gpg: "{{ es_yum_gpg }}"
+
+
+
+beat_enable_modules: 
+## example of module to enable :##
+#  - system
+#  - auditd

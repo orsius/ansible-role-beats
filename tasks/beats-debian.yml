@@ -1,0 +1,45 @@
+---
+
+- name: Debian - Add Beats repository key
+  apt_key:
+    url: "{{ es_apt_gpg }}"
+    state: present
+  when: beats_use_repository
+
+- name: Debian - add beats repository
+  apt_repository:
+    repo: "{{ es_apt_repo }}"
+    state: present
+  when: beats_use_repository
+
+- name: Debian - unhold {{ beats_beat }} version for install
+  command: apt-mark unhold {{ beats_beat }}
+  changed_when: False
+
+- name: Debian - Ensure {{ beats_beat }} is installed
+  apt:
+    name: "{{ beats_beat }}{% if beats_version is defined and beats_version != '' %}={{ beats_version }}{% endif %}"
+    state: present
+    cache_valid_time: 86400
+  when: beats_use_repository
+  register: beats_installed
+  notify: restart beat
+
+- name: Debian - hold {{ beats_beat }} version
+  command: apt-mark hold {{ beats_beat }}
+  when: beats_version_lock
+  changed_when: False
+
+- name: Debian - Download {{ beats_beat }} from url
+  get_url:
+    url: "{{ beats_custom_package_url }}"
+    dest: /tmp/{{ beats_beat }}_.deb
+    validate_certs: no
+  when: not beats_use_repository
+
+- name: Debian - Ensure {{ beats_beat}} is installed from downloaded package
+  apt:
+    deb: /tmp/{{ beats_beat }}.deb
+  when: not beats_use_repository
+  register: beats_installed
+  notify: restart beat

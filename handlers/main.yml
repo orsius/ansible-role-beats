@@ -1,0 +1,8 @@
+---
+# handlers file for beats
+
+- name: restart beat
+  service:
+    name: "{{ beats_beat }}"
+    state: restarted
+    enabled: yes

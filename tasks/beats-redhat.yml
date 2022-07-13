@@ -1,0 +1,42 @@
+---
+- name: Redhat - add beats repository
+  yum_repository:
+    name: elasticsearch-{{ es_major_version }}
+    description: elasticsearch-{{ es_major_version }}
+    baseurl: "{{ es_yum_repo }}"
+    gpgkey: "{{ es_yum_gpg }}"
+    gpgcheck: "{{ es_yum_gpgcheck }}"
+  when: beats_use_repository
+
+- name: RedHat - install yum-version-lock
+  yum:
+    name: yum-plugin-versionlock
+    state: present
+    update_cache: yes
+
+- name: RedHat - unlock {{ beats_beat }} for install
+  shell: yum versionlock delete {{ beats_beat }} || true
+  changed_when: False
+
+- name: RedHat - Ensure {{ beats_beat }} is installed
+  yum:
+    name: "{{ beats_beat }}{% if beats_version is defined and beats_version != '' %}-{{ beats_version }}{% endif %}"
+    state: present
+    update_cache: yes
+  when: beats_use_repository
+  register: beats_installed
+  notify: restart beat
+
+- name: RedHat - lock {{ beats_beat }} version
+  shell: yum versionlock add {{ beats_beat }}{% if beats_version is defined and beats_version != "" %}-{{ beats_version }}{% endif %}
+  when: beats_version_lock
+  changed_when: False
+
+- name: RedHat - Install {{ beats_beat }} from url
+  yum:
+    name: "{{{ beats_custom_package_url }}"
+    state: present
+    disable_gpg_check: "{{ not (es_yum_gpgcheck | bool)  }}"
+  when: not beats_use_repository
+  register: beats_installed
+  notify: restart beat

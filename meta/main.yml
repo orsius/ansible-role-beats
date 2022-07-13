@@ -1,0 +1,24 @@
+---
+# handlers file for beats
+
+allow_duplicates: yes
+
+galaxy_info:
+  author: Dale McDiarmid
+  description: Beats for Linux
+  company: "Elastic.co"
+  license: "license (Apache)"
+  min_ansible_version: 2.9.6
+  platforms:
+  - name: EL
+    versions:
+    - 8
+    - 7
+  - name: Debian
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  categories:
+    - system
